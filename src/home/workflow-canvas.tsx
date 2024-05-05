@@ -1,14 +1,19 @@
 import classNames from "classnames";
 import { HTMLAttributes } from "react";
 import { useDrop } from "src/shared/use-drop";
+import { useMainStore } from "src/store/use-main-store";
 
 interface Props extends HTMLAttributes<HTMLDivElement> {}
 
 export function WorkflowCanvas(props: Props) {
+  const { dragging, pushMaterial } = useMainStore();
   const { className, ...rest } = props;
   const { listeners } = useDrop({
-    onDrop: (e: React.DragEvent) => {
-      console.log(e);
+    onDrop: () => {
+      if (dragging === null) return;
+      if (dragging.material) {
+        pushMaterial(dragging.material);
+      }
     },
   });
   return (
