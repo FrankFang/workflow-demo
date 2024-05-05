@@ -1,5 +1,5 @@
 import { createId } from "src/shared/common";
-import { createImmerStore } from "src/shared/create-immer-store";
+import { createImmerPersistStore as createPersistImmerStore } from "src/shared/store-helper";
 
 type MaterialType = "task" | "decision" | "transformer";
 
@@ -35,27 +35,30 @@ interface MainState {
   updateDragging: (dragging: Partial<Dragging> | null) => void;
 }
 
-export const useMainStore = createImmerStore<MainState>((set) => ({
-  dragging: null,
-  materialList: [],
-  pushMaterial: (material) => {
-    set((state) => {
-      state.materialList.push(material);
-    });
-  },
-  updateDragging: (dragging) => {
-    set((state) => {
-      if (dragging === null) {
-        state.dragging = null;
-      } else {
-        state.dragging = state.dragging || defaultDragging();
-        Object.assign(state.dragging, dragging);
-      }
-    });
-  },
-  defaultDragging,
-  createMaterial,
-}));
+export const useMainStore = createPersistImmerStore<MainState>(
+  "workflow",
+  (set) => ({
+    dragging: null,
+    materialList: [],
+    pushMaterial: (material) => {
+      set((state) => {
+        state.materialList.push(material);
+      });
+    },
+    updateDragging: (dragging) => {
+      set((state) => {
+        if (dragging === null) {
+          state.dragging = null;
+        } else {
+          state.dragging = state.dragging || defaultDragging();
+          Object.assign(state.dragging, dragging);
+        }
+      });
+    },
+    defaultDragging,
+    createMaterial,
+  }),
+);
 
 function createMaterial(type: "task" | "decision" | "transformer"): Material {
   const common = { id: createId(), x: 0, y: 0 };

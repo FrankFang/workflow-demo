@@ -6,7 +6,7 @@ import { useMainStore } from "src/store/use-main-store";
 interface Props extends HTMLAttributes<HTMLDivElement> {}
 
 export function WorkflowCanvas(props: Props) {
-  const { dragging, pushMaterial } = useMainStore();
+  const { dragging, pushMaterial, materialList } = useMainStore();
   const { className, ...rest } = props;
   const { listeners } = useDrop({
     onDrop: () => {
@@ -22,7 +22,9 @@ export function WorkflowCanvas(props: Props) {
       {...listeners}
       className={classNames("border border-blue-500 border-solid", className)}
     >
-      WorkflowCanvas
+      {materialList.map((m) => (
+        <div key={m.id}>{m.type}</div>
+      ))}
     </div>
   );
 }
