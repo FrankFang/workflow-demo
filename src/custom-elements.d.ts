@@ -7,10 +7,6 @@ declare global {
     > & {
       class?: string;
     };
-    interface IntrinsicElements {
-      "x-task": Span;
-      "x-decision": Span;
-      "x-transformer": Span;
-    }
+    interface IntrinsicElements {}
   }
 }

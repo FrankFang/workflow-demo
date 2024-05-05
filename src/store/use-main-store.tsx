@@ -1,7 +1,5 @@
-import { createId } from "src/shared/common";
+import { assign, createId } from "src/shared/common";
 import { createImmerPersistStore as createPersistImmerStore } from "src/shared/store-helper";
-
-type MaterialType = "task" | "decision" | "transformer";
 
 type Material = {
   id: string;
@@ -23,21 +21,23 @@ type Material = {
 );
 
 interface Dragging {
-  material: Material | null;
-  offset: { x: number; y: number } | null;
+  material: Material;
+  offset: { x: number; y: number };
 }
 
 interface MainState {
   dragging: Dragging | null;
   materialList: Material[];
   pushMaterial: (material: Material) => void;
-  createMaterial: (type: MaterialType) => Material;
+  findMaterial: (id: string) => Material | undefined;
+  createMaterial: (attrs: Partial<Material>) => Material;
+  updateMaterial: (id: string, material: Partial<Material>) => void;
   updateDragging: (dragging: Partial<Dragging> | null) => void;
 }
 
 export const useMainStore = createPersistImmerStore<MainState>(
   "workflow",
-  (set) => ({
+  (set, get) => ({
     dragging: null,
     materialList: [],
     pushMaterial: (material) => {
@@ -55,26 +55,61 @@ export const useMainStore = createPersistImmerStore<MainState>(
         }
       });
     },
+    findMaterial: (id) => {
+      return get().materialList.find((m) => m.id === id);
+    },
+    updateMaterial: (id, material) => {
+      set((state) => {
+        const found = state.materialList.find((m) => m.id === id);
+        if (found) {
+          Object.assign(found, material);
+        }
+      });
+    },
     defaultDragging,
     createMaterial,
   }),
 );
 
-function createMaterial(type: "task" | "decision" | "transformer"): Material {
-  const common = { id: createId(), x: 0, y: 0 };
+function createMaterial(attrs: Partial<Material>): Material {
+  let m: Material;
+  const type = attrs.type || "task";
+  const id = attrs.id || createId();
   switch (type) {
     case "task":
-      return { type, name: "", ...common };
+      m = {
+        id,
+        x: 0,
+        y: 0,
+        type: "task",
+        name: "Task",
+      };
+      break;
     case "decision":
-      return { type, condition: "", ...common };
+      m = {
+        id,
+        x: 0,
+        y: 0,
+        type: "decision",
+        condition: "Condition",
+      };
+      break;
     case "transformer":
-      return { type, action: "", ...common };
+      m = {
+        id,
+        x: 0,
+        y: 0,
+        type: "transformer",
+        action: "Action",
+      };
+      break;
   }
+  return assign(m, attrs);
 }
 
 function defaultDragging(): Dragging {
   return {
-    material: null,
+    material: createMaterial({ type: "task" }),
     offset: { x: 0, y: 0 },
   };
 }

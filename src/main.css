@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .c-task {
+    @apply block min-w-[4em] px-3 py-2 text-center rounded-md border-solid border cursor-grab bg-white;
+  }
+}
